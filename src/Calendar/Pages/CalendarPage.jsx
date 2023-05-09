@@ -2,24 +2,13 @@ import { useState } from "react";
 import { Calendar } from "react-big-calendar";
 import { getMessagesEs, localizer } from "../../Helpers";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-
-import { addHours } from "date-fns";
 import { CalendarEvent, CalendarModal, Navbar } from "../";
-
-const events = [
-  {
-    title: "Cumpleaños del Jefe",
-    notes: "Hay que comprar el pastel",
-    start: new Date(),
-    end: addHours(new Date(), 2),
-    user: {
-      id: "123",
-      name: "Matias",
-    },
-  },
-];
+import { useCalendarStore, useUiStore } from "../../Hooks";
 
 export const CalendarPage = () => {
+  const { openDateModal } = useUiStore();
+  const { events, activeEvent } = useCalendarStore();
+
   const [lastView, setLastView] = useState(
     localStorage.getItem("lastView") || "week"
   );
@@ -37,7 +26,7 @@ export const CalendarPage = () => {
   };
 
   const onDoubleClick = (event) => {
-    console.log({ doubleClick: event });
+    openDateModal();
   };
 
   const onSelect = (event) => {
