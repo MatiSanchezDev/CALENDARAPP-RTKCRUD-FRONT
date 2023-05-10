@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useUiStore } from "../../Hooks/";
+import { useEffect, useMemo, useState } from "react";
+import { useCalendarStore, useUiStore } from "../../Hooks/";
 
 import DatePicker, { registerLocale } from "react-datepicker";
 import { addHours, differenceInSeconds } from "date-fns";
@@ -28,11 +28,13 @@ Modal.setAppElement("#root");
 export const CalendarModal = () => {
   const { isDateModalOpen, closeDateModal } = useUiStore();
 
+  const { activeEvent, startSavingEvent } = useCalendarStore();
+
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   const [formValues, setFormValues] = useState({
-    title: "Matias",
-    notes: "Terminar curso de React",
+    title: "",
+    notes: "",
     start: new Date(),
     end: addHours(new Date(), 2),
   });
@@ -42,6 +44,12 @@ export const CalendarModal = () => {
 
     return formValues.title.length > 0 ? "" : "is-invalid";
   }, [formValues.title, formSubmitted]);
+
+  useEffect(() => {
+    if (activeEvent !== null) {
+      setFormValues({ ...activeEvent });
+    }
+  }, [activeEvent]);
 
   const onDateChanged = (event, changing) => {
     setFormValues({
@@ -57,12 +65,12 @@ export const CalendarModal = () => {
     });
   };
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
     setFormSubmitted(true);
 
     const difference = differenceInSeconds(formValues.end, formValues.start);
-    console.log({ difference });
+    //console.log({ difference });
 
     if (isNaN(difference) || difference <= 0) {
       Swal.fire("Fechas Incorrectas", "Revisar las fechas ingresadas", "error");
@@ -71,7 +79,11 @@ export const CalendarModal = () => {
 
     if (formValues.title.length <= 0) return;
 
-    console.log(formValues);
+    await startSavingEvent(formValues);
+    closeDateModal();
+    setFormSubmitted(false);
+
+    //console.log(formValues);
   };
 
   return (

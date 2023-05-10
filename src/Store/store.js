@@ -6,4 +6,9 @@ export const store = configureStore({
     calendar: calendarSlice.reducer,
     ui: uiSlice.reducer,
   },
+  // Para evitar que las fechas no sean revisadas
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
